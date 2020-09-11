@@ -13,7 +13,7 @@
 #include "Rotation.h"
 #include <vector>
 
-//※このフォーマットで適切か菅くんに要確認　9/11/2020
+//※このフォーマットで適切か武藤くん菅くんに要確認　9/11/2020
 enum Direction { North, NEast, East, SEast, South, SWest, West, NWest };
 
 class HopScotch {
@@ -33,6 +33,10 @@ class HopScotch {
   void cnvrtC8E2Motion(std::vector<std::vector<int>>& c8es_, Direction direct_);
 
  private:
+    Controller&     ctrler; //参照型コントローラクラス
+    MoveStraight&   linear; //参照型直線運動クラス
+    LineTracer&     tracer; //参照型ライントレーサクラス
+    Rotation&       yaw;    //参照型回頭クラス
 };
 
 #endif  // HOPSCOTCH_H
