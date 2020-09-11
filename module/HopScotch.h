@@ -24,7 +24,7 @@ class HopScotch {
    * @param  tracer_ 参照型ライントレーサクラス
    * @param  yaw_    参照型回頭クラス
    **/
-  hopscotch(Controller& ctrler_, MoveStraight& linear_, LineTracer& tracer_, Rotation& yaw_);
+  HopScotch(Controller& ctrler_, MoveStraight& linear_, LineTracer& tracer_, Rotation& yaw_);
 
   /** 座標->機動変換メソッド
    * @param c8es_ 整数型座標ベクタ (c8es = coordinates)
