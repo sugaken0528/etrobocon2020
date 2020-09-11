@@ -56,8 +56,8 @@ class HopScotch {
     void vectordiff(vector<vector<int>> & c8es_);
 
 
-    // 座標どうしの差分から方角をとる.
-    
+    // 座標どうしの差分から方角をとる
+
     
 };
 
