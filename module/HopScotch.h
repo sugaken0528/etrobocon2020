@@ -11,6 +11,7 @@
 #include "MoveStraight.h"
 #include "LineTracer.h"
 #include "Rotation.h"
+#include <vector>
 
 //※このフォーマットで適切か菅くんに要確認　9/11/2020
 enum Direction { North, NEast, East, SEast, South, SWest, West, NWest };
