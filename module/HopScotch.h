@@ -15,6 +15,14 @@
 
 using namespace std;
 
+enum class Scines {
+    C2M = 0, //交点から中点
+    M2C, //中点から交点
+    YAW, //回頭
+    LIN, //直線運動クラス
+    M2M  //中点から中点
+};
+
 //※このフォーマットで適切か菅くんに要確認　9/11/2020　ヨシ
 enum class Direction { North, NEast, East, SEast, South, SWest, West, NWest };
 
@@ -41,24 +49,29 @@ class HopScotch {
     MoveStraight&   linear; //参照型直線運動クラス
     LineTracer&     tracer; //参照型ライントレーサクラス
     Rotation&       yaw;    //参照型回頭クラス
+    
+    Direction       pre_direct; //1つ前の向き情報
 
-    void cb_crossToMidPoint(); //交点->中点
-    void cb_midPointToCross(); //中点->交点
-    void cb_yawing();          //方向転換
-    void cb_linear();          //交点∪中点 -> ブロックサークル
-    void cb_midToMid();        //中点->中点
-    void state();
+    /*/-------------------------------------------------------------*/
+    void (*stateMachine[5])();         //関数テーブル
+    void move(Scines scine_);        //機動
+    static void cb_cross2MidPoint(); //交点->中点
+    static void cb_midPoint2Cross(); //中点->交点
+    static void cb_yawing();          //方向転換
+    static void cb_linear();          //交点∪中点 -> ブロックサークル
+    static void cb_mid2Mid();        //中点->中点
+    /*-------------------------------------------------------------/*/
 
-    //二点間のx差分
-    // 座標どうしの差分
+
     vector<int> x_diff; //二点間のx差分
     vector<int> y_diff; //二点間のy差分    
     void vectordiff(vector<vector<int>> & c8es_);
 
 
-    // 座標どうしの差分から方角をとる
+    // 二点間の差分の座標から次に進む方向を返す関数
+    Direction vector2direction(vector<int> x_diff, vector<int> y_diff);
+    Direction direction2angle(std::vector<int> x_diff, std::vector<int> y_diff,Direction direct_ );
 
-    
 };
 
 #endif//HOPSCOTCH_H
