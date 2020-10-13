@@ -14,7 +14,7 @@ MotionSequencer::MotionSequencer(Controller& ctrler_, bool isLeftCource_)
   stateMachine[4] = cb_mid2Mid;
 }
 
-void MotionSequencer::cnvrtC8E2Motion(std::vector<std::vector<int>>& c8es_, Direction direct_) {}
+void MotionSequencer::route2Motion(std::vector<std::vector<int>>& route, Direction direction) {}
 
 void MotionSequencer::vectordiff(vector<vector<int>>& c8es_)
 {
