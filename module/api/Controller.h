@@ -63,6 +63,8 @@ class Controller {
   int getLeftMotorCount();
   int getRightMotorCount();
   int getArmMotorCount();
+  int getTargetBrightness();
+  void setTargetBrightness(int brightness_);
   void setLeftMotorPwm(const int pwm);
   void setRightMotorPwm(const int pwm);
   void setArmMotorPwm(const int pwm);
@@ -98,6 +100,7 @@ class Controller {
   int getCourseInfo(ETROBOC_COURSE_INFO_ID id);
   
  private:
+  int targetBrightness;
   HsvStatus hsv;
   Motor liftMotor;
   Motor rightWheel;

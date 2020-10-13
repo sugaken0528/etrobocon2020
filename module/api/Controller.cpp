@@ -344,3 +344,13 @@ int Controller::getCourseInfo(ETROBOC_COURSE_INFO_ID id)
 {
   return ETRoboc_getCourceInfo(id);
 }
+
+int Controller::getTargetBrightness()
+{
+  return targetBrightness;
+}
+
+void Controller::setTargetBrightness(int brightness_)
+{
+  targetBrightness = brightness_;
+}
