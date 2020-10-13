@@ -1,11 +1,11 @@
 /**
- * @file HopScotch.h
+ * @file MotionSequencer.h
  * @brief 座標情報を機動に変換するクラス
  * @author T.Yoshino(Mikoyaan), D.Hirayama(Kanikama)
  **/
 
-#ifndef HOPSCOTCH_H
-#define HOPSCOTCH_H
+#ifndef MOTIONSEQUENCER_H
+#define MOTIONSEQUENCER_H
 
 #include <vector>
 #include "Controller.h"
@@ -27,7 +27,7 @@ enum class Scines {
 //※このフォーマットで適切か菅くんに要確認　9/11/2020　ヨシ
 enum class Direction { North, NEast, East, SEast, South, SWest, West, NWest };
 
-class HopScotch {
+class MotionSequencer {
  public:
   /** コンストラクタ
    * @param　ctrler_ 参照型コントローラクラス
@@ -35,20 +35,20 @@ class HopScotch {
    * @param  tracer_ 参照型ライントレーサクラス
    * @param  yaw_    参照型回頭クラス
    **/
-  HopScotch(Controller& ctrler_, MoveStraight& linear_, LineTracer& tracer_, Rotation& yaw_);
+  MotionSequencer(Controller& ctrler_, bool isLeftCource_);
 
   /** 座標->機動変換メソッド
-   * @param c8es_ 整数型座標ベクタ (c8es = coordinates)
+   * @param route_ 整数型座標ベクタ
    * @param direct_ 向き情報
-   **/ //↓略すな
-  void cnvrtC8E2Motion(vector<vector<int>>& c8es_, Direction direct_);
+   **/
+  void route2Motion(vector<vector<int>>& route_, Direction direction);
 
  private:
   Controller& ctrler;    //参照型コントローラクラス
-  MoveStraight& linear;  //参照型直線運動クラス
-  LineTracer& tracer;  //参照型ライントレーサクラス プロパティの目安：{ 320, baseSpeed, 0.0, { 0.1,
+  MoveStraight linear;  //参照型直線運動クラス
+  LineTracer tracer;  //参照型ライントレーサクラス プロパティの目安：{ 320, baseSpeed, 0.0, { 0.1,
                        //0.005, 0.01 } }// 第3区間
-  Rotation& yaw;  //参照型回頭クラス
+  Rotation yaw;  //参照型回頭クラス
 
   Direction pre_direct;  // 1つ前の向き情報
 
@@ -77,4 +77,4 @@ for(int i=0; i<(int)list.size(); i++){
 }
 */
 
-#endif  // HOPSCOTCH_H
+#endif  // MOTIONSEQUENCER_H
