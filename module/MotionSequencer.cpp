@@ -16,41 +16,86 @@ MotionSequencer::MotionSequencer(Controller& ctrler_, bool isLeftCource_)
 
 void MotionSequencer::route2Motion(vector<vector<int>>& route, Direction direction)
 {
-  vector<int>& currentCoordinate = route[0];
+  Direction currentDirection = direction;
+
+  for(int i = 0; i < route.size() - 1; i++) {
+    vector<int>& currentCoordinate = route[i];
+    vector<int>& nextCoordinate = route[i + 1];
+    Direction nextDirection = calcNextDirection(currentCoordinate, nextCoordinate);
+
+    // 方向転換
+    int rotationAngle = calcAngle(currentDirection, nextDirection);
+    if(rotationAngle != 0) {
+      yaw.rotate(abs(rotationAngle), rotationAngle > 0);
+    }
+
+    // 移動
+    CoordinateType currentType = getCoordinateType(currentCoordinate);
+    CoordinateType nextType = getCoordinateType(nextCoordinate);
+    if(currentType == CoordinateType::crossCircle && nextType == CoordinateType::middlePoint) {
+    } else if(currentType == CoordinateType::middlePoint
+              && nextType == CoordinateType::crossCircle) {
+    } else if(currentType == CoordinateType::middlePoint
+              && nextType == CoordinateType::middlePoint) {
+    } else if(currentType == CoordinateType::middlePoint
+              && nextType == CoordinateType::blockCircle) {
+    }
+
+    currentDirection = nextDirection;
+  }
 }
 
-// void MotionSequencer::vectordiff(vector<vector<int>>& c8es_)
-// {
-//   // c8es_[n][n] = {{x0, y0}, {x1, y1}, ... , {xn, yn}}
-//   for(int i = 0; i <= c8es_.at(0).size(); i++) {  // 横の配列読み取り
+Direction MotionSequencer::calcNextDirection(vector<int>& currentCoordinate,
+                                             vector<int>& nextCoordinate)
+{
+  int xDiff = nextCoordinate[0] - currentCoordinate[0];
+  int yDiff = nextCoordinate[1] - currentCoordinate[1];
 
-//     for(int j = 0; j <= c8es_.size(); j++) {  // 縦の配列読み取り
+  if(xDiff == 0 && yDiff == -1) {
+    return Direction::North;
+  } else if(xDiff == 1 && yDiff == -1) {
+    return Direction::NEast;
+  } else if(xDiff == 1 && yDiff == 0) {
+    return Direction::East;
+  } else if(xDiff == 1 && yDiff == 1) {
+    return Direction::SEast;
+  } else if(xDiff == 0 && yDiff == 1) {
+    return Direction::South;
+  } else if(xDiff == -1 && yDiff == 1) {
+    return Direction::SWest;
+  } else if(xDiff == -1 && yDiff == 0) {
+    return Direction::West;
+  } else {
+    return Direction::NWest;
+  }
+}
 
-//       MotionSequencer::y_diff.push_back(c8es_[i + 1][j] - c8es_[i][j]);
-//       MotionSequencer::x_diff.push_back(c8es_[j][i + 1] - c8es_[j][i]);
-//     }
-//   }
-// }
+int MotionSequencer::calcAngle(Direction currentDirection, Direction nextDirection)
+{
+  int angle = static_cast<int>(nextDirection) - static_cast<int>(currentDirection);
+  printf("%d %d %d\n", nextDirection, currentDirection, angle);
+  if(angle > 4) {
+    angle -= 8;
+  } else if(angle < -4) {
+    angle += 8;
+  }
 
-// // 二点間の差分の座標から次に進む方向を返す
+  return angle * 45;
+}
 
-// Direction MotionSequencer::vector2direction(std::vector<int> x_diff, std::vector<int> y_diff)
-// {
-//   Direction direct;
+CoordinateType MotionSequencer::getCoordinateType(vector<int>& coordinate)
+{
+  bool isXOdd = coordinate[0] % 2;
+  bool isYOdd = coordinate[1] % 2;
 
-//   for(int i = 0; i <= x_diff.size(); i++) {
-//     if(x_diff[i] == 0 && y_diff[i] == -1) direct = Direction::North;
-//     if(x_diff[i] == 1 && y_diff[i] == -1) direct = Direction::NEast;
-//     if(x_diff[i] == 1 && y_diff[i] == 0) direct = Direction::East;
-//     if(x_diff[i] == 1 && y_diff[i] == 1) direct = Direction::SEast;
-//     if(x_diff[i] == 0 && y_diff[i] == 1) direct = Direction::South;
-//     if(x_diff[i] == -1 && y_diff[i] == 1) direct = Direction::SWest;
-//     if(x_diff[i] == -1 && y_diff[i] == 0) direct = Direction::West;
-//     if(x_diff[i] == -1 && y_diff[i] == -1) direct = Direction::NWest;
-//   }
-
-//   return direct;  //東
-// }
+  if(isXOdd && isYOdd) {
+    return CoordinateType::blockCircle;
+  } else if(!isXOdd && !isYOdd) {
+    return CoordinateType::crossCircle;
+  } else {
+    return CoordinateType::middlePoint;
+  }
+}
 
 // // 方向から角度を出す関数(ひとつ前の方向をどう保持するか) むずかしいな。
 // Direction MotionSequencer::direction2angle(std::vector<int> x_diff, std::vector<int> y_diff,
