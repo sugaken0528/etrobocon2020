@@ -10,6 +10,7 @@ APPL_CXXOBJS += \
     Distance.o \
     EtRobocon2020.o \
     Filter.o \
+    MotionSequencer.o \
     MoveStraight.o \
     LineTracer.o \
     NormalCourse.o \
@@ -17,7 +18,6 @@ APPL_CXXOBJS += \
     TurnControl.o \
     Navigator.o \
     Rotation.o \
-    HopScotch.o \
     BlockBingoData.o \
 
 SRCLANG := c++

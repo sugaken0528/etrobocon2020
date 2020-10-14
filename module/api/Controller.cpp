@@ -349,3 +349,13 @@ void Controller::notifyCompleted(void)
 {
   ETRoboc_notifyCompletedToSimulator();
 }
+
+int Controller::getTargetBrightness()
+{
+  return targetBrightness;
+}
+
+void Controller::setTargetBrightness(int brightness_)
+{
+  targetBrightness = brightness_;
+}
