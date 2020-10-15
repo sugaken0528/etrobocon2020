@@ -127,6 +127,8 @@ class BlockBingoData {
    */
   Color getCrossCircleColor(Coordinate coordinate);
 
+  Direction calcNextDirection(Coordinate& currentCoordinate, Coordinate& nextCoordinate);
+
  private:
   Controller& controller;
   bool isLeftCourse;

@@ -1,79 +1,96 @@
 #include "MotionSequencer.h"
-#include <vector>
 
-MotionSequencer::MotionSequencer(Controller& ctrler_, bool isLeftCource_)
-  : ctrler(ctrler_),
-    linear(ctrler_),
-    tracer(ctrler_, ctrler_.getTargetBrightness(), isLeftCource_),
-    yaw(ctrler_)
+MotionSequencer::MotionSequencer(Controller& controller_, bool isLeftCource_,
+                                 BlockBingoData blockBingoData_)
+  : controller(controller_),
+    isLeftCourse(isLeftCource_),
+    blockBingoData(blockBingoData_),
+    moveStraight(controller_),
+    lineTracer(controller_, controller_.getTargetBrightness(), isLeftCource_),
+    rotation(controller_)
 {
-  // stateMachine[0] = cb_cross2MidPoint;
-  // stateMachine[1] = cb_midPoint2Cross;
-  // stateMachine[2] = cb_yawing;
-  // stateMachine[3] = cb_linear;
-  // stateMachine[4] = cb_mid2Mid;
 }
 
-void MotionSequencer::route2Motion(vector<vector<int>>& route, Direction direction)
+void MotionSequencer::route2Motion(vector<Coordinate>& route)
 {
-  Direction currentDirection = direction;
+  Coordinate& currentCoordinate = route.front();
+  Direction currentDirection = blockBingoData.getDirection();
 
-  for(int i = 0; i < route.size() - 1; i++) {
-    vector<int>& currentCoordinate = route[i];
-    vector<int>& nextCoordinate = route[i + 1];
-    Direction nextDirection = calcNextDirection(currentCoordinate, nextCoordinate);
+  for(int i = 1; i < route.size(); i++) {
+    Coordinate& nextCoordinate = route[i];
+    Direction nextDirection = blockBingoData.calcNextDirection(currentCoordinate, nextCoordinate);
+
+    printf("(%d,%d) -> (%d,%d) 現在方位:%d\n", currentCoordinate.x, currentCoordinate.y,
+           nextCoordinate.x, nextCoordinate.y, currentDirection);
 
     // 方向転換
-    int rotationAngle = calcAngle(currentDirection, nextDirection);
+    int rotationAngle = calcRotationAngle(currentDirection, nextDirection);
     if(rotationAngle != 0) {
-      yaw.rotate(abs(rotationAngle), rotationAngle > 0);
+      // rotation.rotate(abs(rotationAngle), rotationAngle > 0);
+      printf("方向転換%d°\n", rotationAngle);
     }
 
     // 移動
-    CoordinateType currentType = getCoordinateType(currentCoordinate);
-    CoordinateType nextType = getCoordinateType(nextCoordinate);
-    if(currentType == CoordinateType::crossCircle && nextType == CoordinateType::middlePoint) {
-    } else if(currentType == CoordinateType::middlePoint
-              && nextType == CoordinateType::crossCircle) {
-    } else if(currentType == CoordinateType::middlePoint
-              && nextType == CoordinateType::middlePoint) {
-    } else if(currentType == CoordinateType::middlePoint
-              && nextType == CoordinateType::blockCircle) {
+    NodeType currentType = blockBingoData.checkNode(currentCoordinate);
+    NodeType nextType = blockBingoData.checkNode(nextCoordinate);
+    if(currentType == NodeType::crossCircle && nextType == NodeType::middlePoint) {
+      // 交点サークルから中点への移動
+      // lineTracer.run({ 175, 30, 0.0, { 0.1, 0.005, 0.01 } });
+      printf("交点サークルから中点への移動\n");
+
+    } else if(currentType == NodeType::crossCircle && nextType == NodeType::blockCircle) {
+      // 交点サークルからブロックサークルへの移動
+      // moveStraight.moveTo(186.7);
+      printf("交点サークルからブロックサークルへの移動\n");
+      if(i == route.size() - 1
+         && blockBingoData.getBlockCircle(nextCoordinate).block.blockColor == Color::none) {
+        // ブロックサークルにブロックを設置する場合
+        // moveStraight.moveTo(-186.7);
+        printf("ブロックサークルから交点サークルへ戻る\n");
+      }
+
+    } else if(currentType == NodeType::middlePoint && nextType == NodeType::crossCircle) {
+      // 中点から交点サークルへの移動
+      // lineTracer.runToColor(30, 0.1, 0.005, 0.01, 0.0);
+      // moveStraight.moveTo(110);
+      printf("中点から交点サークルへの移動\n");
+
+    } else if(currentType == NodeType::middlePoint && nextType == NodeType::middlePoint) {
+      // 中点から中点への移動
+      // moveStraight.moveTo(247.48);
+      printf("中点から中点への移動\n");
+
+    } else if(currentType == NodeType::middlePoint && nextType == NodeType::blockCircle) {
+      // 中点からブロックサークルへの移動
+      // moveStraight.moveTo(145);
+      printf("中点からブロックサークルへの移動\n");
+      if(i == route.size() - 1
+         && blockBingoData.getBlockCircle(nextCoordinate).block.blockColor == Color::none) {
+        // ブロックサークルにブロックを設置する場合
+        // moveStraight.moveTo(-145);
+        printf("ブロックサークルから中点へ戻る\n");
+      }
+
+    } else if(currentType == NodeType::blockCircle && nextType == NodeType::crossCircle) {
+      // ブロックサークルから交点サークルへの移動
+      // moveStraight.moveTo(186.7);
+      printf("ブロックサークルから交点サークルへの移動\n");
+
+    } else if(currentType == NodeType::blockCircle && nextType == NodeType::middlePoint) {
+      // ブロックサークルから中点への移動
+      // moveStraight.moveTo(145);
+      printf("ブロックサークルから中点への移動\n");
     }
 
+    currentCoordinate = nextCoordinate;
     currentDirection = nextDirection;
   }
 }
 
-Direction MotionSequencer::calcNextDirection(vector<int>& currentCoordinate,
-                                             vector<int>& nextCoordinate)
-{
-  int xDiff = nextCoordinate[0] - currentCoordinate[0];
-  int yDiff = nextCoordinate[1] - currentCoordinate[1];
-
-  if(xDiff == 0 && yDiff == -1) {
-    return Direction::North;
-  } else if(xDiff == 1 && yDiff == -1) {
-    return Direction::NEast;
-  } else if(xDiff == 1 && yDiff == 0) {
-    return Direction::East;
-  } else if(xDiff == 1 && yDiff == 1) {
-    return Direction::SEast;
-  } else if(xDiff == 0 && yDiff == 1) {
-    return Direction::South;
-  } else if(xDiff == -1 && yDiff == 1) {
-    return Direction::SWest;
-  } else if(xDiff == -1 && yDiff == 0) {
-    return Direction::West;
-  } else {
-    return Direction::NWest;
-  }
-}
-
-int MotionSequencer::calcAngle(Direction currentDirection, Direction nextDirection)
+int MotionSequencer::calcRotationAngle(Direction currentDirection, Direction nextDirection)
 {
   int angle = static_cast<int>(nextDirection) - static_cast<int>(currentDirection);
-  printf("%d %d %d\n", nextDirection, currentDirection, angle);
+
   if(angle > 4) {
     angle -= 8;
   } else if(angle < -4) {
@@ -82,55 +99,3 @@ int MotionSequencer::calcAngle(Direction currentDirection, Direction nextDirecti
 
   return angle * 45;
 }
-
-CoordinateType MotionSequencer::getCoordinateType(vector<int>& coordinate)
-{
-  bool isXOdd = coordinate[0] % 2;
-  bool isYOdd = coordinate[1] % 2;
-
-  if(isXOdd && isYOdd) {
-    return CoordinateType::blockCircle;
-  } else if(!isXOdd && !isYOdd) {
-    return CoordinateType::crossCircle;
-  } else {
-    return CoordinateType::middlePoint;
-  }
-}
-
-// // 方向から角度を出す関数(ひとつ前の方向をどう保持するか) むずかしいな。
-// Direction MotionSequencer::direction2angle(std::vector<int> x_diff, std::vector<int> y_diff,
-//                                            Direction direct_)  // 北
-// {
-//   // よくわかりません
-
-//   // int delta_direct;
-//   //  int pre_direct = vector2direction(x_diff, y_diff);
-
-//   // delta_direct = (int)direct_ - (int)pre_direct; //北　- 東
-//   // pre_direct = direct_ ; // 前の方向を北にする
-//   // direct_ = vector2direction(x_diff, y_diff); // 次に向かう位置に更新
-// }
-
-// // Rotatesion.cpp rotate関数の引数にprivateの角度を渡す
-// // LineTracer:: runとruntocolor
-// // MoveStraightの moveto　引数に距離または角度
-// // 後退もできる
-
-// void MotionSequencer::move(Scines scine_)
-// {
-//   // stateMachine[scine_]();
-// }
-
-// //
-// void MotionSequencer::cb_cross2MidPoint()
-// {
-//   // linear.moveWhileBW();
-// }
-
-// void MotionSequencer::cb_midPoint2Cross() {}
-
-// void MotionSequencer::cb_yawing() {}
-
-// void MotionSequencer::cb_linear() {}
-
-// void MotionSequencer::cb_mid2Mid() {}

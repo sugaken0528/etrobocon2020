@@ -25,57 +25,27 @@ enum class BingoMotion {
   setBlock,  // ブロックサークルにブロック設置
 };
 
-enum class CoordinateType { crossCircle, blockCircle, middlePoint };
-
 class MotionSequencer {
  public:
   /** コンストラクタ
-   * @param　ctrler_ 参照型コントローラクラス
-   * @param  linear_ 参照型直線運動クラス
-   * @param  tracer_ 参照型ライントレーサクラス
-   * @param  yaw_    参照型回頭クラス
+   * @param　controller_
+   * @param isLeftCourse
    **/
-  MotionSequencer(Controller& ctrler_, bool isLeftCource_);
+  MotionSequencer(Controller& controller_, bool isLeftCource_, BlockBingoData blockBingoData_);
 
-  /** 座標->機動変換メソッド
-   * @param route_ 整数型座標ベクタ
-   * @param direct_ 向き情報
+  /** 経路->動作変換
+   * @param route_ 経路
    **/
-  void route2Motion(vector<vector<int>>& route_, Direction direction);
+  void route2Motion(vector<Coordinate>& route_);
 
  private:
-  Controller& ctrler;
-  MoveStraight linear;
-  LineTracer tracer;  //プロパティの目安：{ 320, baseSpeed, 0.0, { 0.1,0.005, 0.01 } }
-  Rotation yaw;
+  Controller& controller;
+  bool isLeftCourse;
+  BlockBingoData blockBingoData;
+  MoveStraight moveStraight;
+  LineTracer lineTracer;
+  Rotation rotation;
 
-  Direction calcNextDirection(vector<int>& currentCoordinate, vector<int>& nextCoordinate);
-  int calcAngle(Direction currentDirection, Direction nextDirection);
-  CoordinateType getCoordinateType(vector<int>& coordinate);
-
-  // Direction pre_direct;  // 1つ前の向き情報
-  // /*/-------------------------------------------------------------*/
-  // void (*stateMachine[5])();        //関数テーブル
-  // void move(Scines scine_);         //機動
-  // static void cb_cross2MidPoint();  //交点->中点
-  // static void cb_midPoint2Cross();  //中点->交点
-  // static void cb_yawing();          //方向転換
-  // static void cb_linear();          //交点∪中点 -> ブロックサークル
-  // static void cb_mid2Mid();         //中点->中点
-  // /*-------------------------------------------------------------/*/
-
-  // vector<int> x_diff;  //二点間のx差分
-  // vector<int> y_diff;  //二点間のy差分
-  // void vectordiff(vector<vector<int>>& c8es_);
-
-  // // 二点間の差分の座標から次に進む方向を返す関数
-  // Direction direction2angle(std::vector<int> x_diff, std::vector<int> y_diff, Direction direct_);
+  int calcRotationAngle(Direction currentDirection, Direction nextDirection);
 };
-
-/* 二次元ベクタの読み方
-for(int i=0; i<(int)list.size(); i++){
-  printf("(%d, %d)->", list[i][0], list[i][1]);
-}
-*/
-
 #endif  // MOTIONSEQUENCER_H

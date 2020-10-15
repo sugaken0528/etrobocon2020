@@ -278,3 +278,28 @@ Color BlockBingoData::getCrossCircleColor(Coordinate coordinate)
   return isLeftCourse ? crossCircleColorL[coordinate.y / 2][coordinate.x / 2]
                       : crossCircleColorR[coordinate.y / 2][coordinate.x / 2];
 }
+
+Direction BlockBingoData::calcNextDirection(Coordinate& currentCoordinate,
+                                            Coordinate& nextCoordinate)
+{
+  int xDiff = nextCoordinate.x - currentCoordinate.x;
+  int yDiff = nextCoordinate.y - currentCoordinate.y;
+
+  if(xDiff == 0 && yDiff == -1) {
+    return Direction::North;
+  } else if(xDiff == 1 && yDiff == -1) {
+    return Direction::NEast;
+  } else if(xDiff == 1 && yDiff == 0) {
+    return Direction::East;
+  } else if(xDiff == 1 && yDiff == 1) {
+    return Direction::SEast;
+  } else if(xDiff == 0 && yDiff == 1) {
+    return Direction::South;
+  } else if(xDiff == -1 && yDiff == 1) {
+    return Direction::SWest;
+  } else if(xDiff == -1 && yDiff == 0) {
+    return Direction::West;
+  } else {
+    return Direction::NWest;
+  }
+}
